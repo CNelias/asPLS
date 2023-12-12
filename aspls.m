@@ -17,11 +17,11 @@ function [detrended_signal, baseline] = aspls(X, lambda, order, k, itermax, epsi
 %       - itermax : int, The max number of fit iterations. Default is 20.
 %       - epsilon : float, The exit criteria. Default is 1e-4.
 % 
-%     Returns
+%     Returns:
 %       - detrended_signal : (array) The input signal - the calculated baseline.
 %       - baseline : (array) The calculated baseline.
 % 
-%     References
+%     References:
 %       Zhang, F., et al. Baseline correction for infrared spectra using
 %       adaptive smoothness parameter penalized least squares method.
 %       Spectroscopy Letters, 2020, 53(3), 222-233.
@@ -37,7 +37,7 @@ if nargin < 6
             if nargin < 3
                 order=2;
                 if nargin < 2
-                    lambda=10e7;
+                    lambda=10e5;
                     if nargin < 1
                         error('Missing input data.');
                     end
