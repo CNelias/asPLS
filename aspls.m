@@ -5,7 +5,7 @@ function [detrended_signal, baseline] = aspls(X, lambda, order, k, itermax, epsi
 % 
 %     Inputs:
 %       - X : array, The y-values of the measured data, with t data points. 
-%           Should be 1-D timeseries! Must not contain missing data (NaN) or Inf.
+%            Must not contain missing data (NaN) or Inf.
 %       - lambda : float, The smoothing parameter. Larger values will create smoother baselines.
 %           Default is 1e5.
 %       - order : int, The order of the differential matrix. Must be greater than 0. Default is 2
