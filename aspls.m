@@ -4,8 +4,8 @@ function [detrended_signal, baseline] = aspls(X, lambda, order, k, itermax, epsi
 %     features of interest in the data (i.e. peaks).
 % 
 %     Inputs:
-%       - X : array-like, The y-values of the measured data, with t data points. 
-%           Must not contain missing data (NaN) or Inf.
+%       - X : array, The y-values of the measured data, with t data points. 
+%           Should be 1-D timeseries! Must not contain missing data (NaN) or Inf.
 %       - lambda : float, The smoothing parameter. Larger values will create smoother baselines.
 %           Default is 1e5.
 %       - order : int, The order of the differential matrix. Must be greater than 0. Default is 2
@@ -47,33 +47,34 @@ if nargin < 6
     end
 end
 
-[features, t] =size(X);
+
+[~, t] = size(X);
 D = diff(speye(t), order);
 DD = lambda*D'*D;
 for i=1:features %iterating over features
-    w = ones(t, 1);
-    a = ones(t, 1);
+    W = speye(t);
+    A = speye(t);
     x=X(i,:);
     for j=1:itermax
-        W=spdiags(w, 0, t, t);
-        A=spdiags(a, 0, t, t);
-%         C = chol(W + A*DD);
-%         z = (C\(C'\(w .* x')))';
-        z = (W + lambda*A*D'*D)\(W*X');
+        [L,U,P] = lu(W + A*DD);
+        z = ( U\(L\(P*W*X')) )';
+%         z = (W + lambda*A*D'*D)\(W*X');
         d = x-z;
-        a = abs(d')/max(abs(d));
+        A = speye(t).*abs(d')/max(abs(d));
         sigma_ = std(d(d < 0)); %standard deviation of events below fit.
-        w_next = ones(1, t)./( 1 + exp(k*(d - sigma_)/sigma_) )  ;
-        if sum(abs(w - w_next))/sum(abs(w)) < epsilon %testing if weights have converged
+        W_next = speye(t).*( ones(1, t)./( 1 + exp(k*(d - sigma_)/sigma_) )  );
+        if sum(abs(W(:) - W_next(:)))/sum(abs(W(:))) < epsilon %testing if weights have converged
             break;
         end
-        w = w_next'; %if weights did not converge, update.
+        W = W_next;  %if weights did not converge, update.
     end
     Z(i,:)=z;
+    if j == itermax
+        warning("Stopping: aspls algorithm reached max. number of iteration.")
+    end
 end
 detrended_signal=X-Z;
 baseline = Z;
-
 
 
 
