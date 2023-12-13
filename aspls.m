@@ -48,25 +48,27 @@ if nargin < 6
 end
 
 
-[~, t] = size(X);
+[features, t] = size(X);
 D = diff(speye(t), order);
 DD = lambda*D'*D;
 for i=1:features %iterating over features
-    W = speye(t);
-    A = speye(t);
+    w = ones(t, 1);
+    a = ones(t, 1);
     x=X(i,:);
     for j=1:itermax
+        W=spdiags(w, 0, t, t);
+        A=spdiags(a, 0, t, t);
         [L,U,P] = lu(W + A*DD);
         z = ( U\(L\(P*W*X')) )';
 %         z = (W + lambda*A*D'*D)\(W*X');
         d = x-z;
-        A = speye(t).*abs(d')/max(abs(d));
+        a = abs(d')/max(abs(d));
         sigma_ = std(d(d < 0)); %standard deviation of events below fit.
-        W_next = speye(t).*( ones(1, t)./( 1 + exp(k*(d - sigma_)/sigma_) )  );
-        if sum(abs(W(:) - W_next(:)))/sum(abs(W(:))) < epsilon %testing if weights have converged
+        w_next = ones(1, t)./( 1 + exp(k*(d - sigma_)/sigma_) )  ;
+        if sum(abs(w - w_next))/sum(abs(w)) < epsilon %testing if weights have converged
             break;
         end
-        W = W_next;  %if weights did not converge, update.
+        w = w_next';  %if weights did not converge, update.
     end
     Z(i,:)=z;
     if j == itermax
