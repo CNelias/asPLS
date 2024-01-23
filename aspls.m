@@ -26,7 +26,7 @@ function [detrended_signal, baseline] = aspls(X, lambda, order, k, itermax, epsi
 %       adaptive smoothness parameter penalized least squares method.
 %       Spectroscopy Letters, 2020, 53(3), 222-233.
 %       
-%     Author: Corentin Nelias, Agarwal Lab 2023
+%     Written by: Corentin Nelias, Agarwal Lab 2023
 
 if nargin < 6
     epsilon = 10e-4;
